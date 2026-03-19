@@ -1,66 +1,66 @@
-# Caso: Supply Chain China-Brasil (Missao China HQ)
+# Case: Supply Chain China-Brazil
 
-Sistema de gestao de operacoes de importacao China-Brasil.
-
----
-
-## Problema
-
-Operacoes de importacao da China para o Brasil sao gerenciadas em planilhas desconectadas. Cada embarque envolve dezenas de documentos, multiplos fornecedores, timelines diferentes e requisitos de compliance que mudam por categoria de produto. Nao existe visao unificada do status de cada operacao, e o risco de erro em documentacao aduaneira e alto — com consequencias financeiras reais.
+Import operations management system for China-Brazil trade.
 
 ---
 
-## Solucao
+## Problem
 
-Sistema de rastreamento unificado com:
-
-- **Gestao de embarques** — cada importacao como entidade unica com timeline, documentos, custos e status
-- **Compliance scoring** — score automatico por embarque baseado em completude de documentacao, historico do fornecedor e categoria de produto
-- **Dashboard de operacoes** — visao consolidada de todos os embarques ativos, atrasados e finalizados
-- **Gestao de fornecedores** — cadastro com historico de performance, lead times reais e confiabilidade
-- **Alertas** — notificacao automatica para documentos pendentes, prazos proximos e anomalias de custo
-- **Calculo de custos** — custo total de internacao (produto + frete + impostos + armazenagem) por embarque
+China-to-Brazil import operations are managed in disconnected spreadsheets. Each shipment involves dozens of documents, multiple suppliers, different timelines, and compliance requirements that change by product category. There's no unified view of each operation's status, and the risk of customs documentation errors is high — with real financial consequences.
 
 ---
 
-## Arquitetura
+## Solution
+
+Unified tracking system with:
+
+- **Shipment management** — each import as a unique entity with timeline, documents, costs, and status
+- **Compliance scoring** — automatic score per shipment based on documentation completeness, supplier history, and product category
+- **Operations dashboard** — consolidated view of all active, delayed, and completed shipments
+- **Supplier management** — registry with performance history, real lead times, and reliability
+- **Alerts** — automatic notification for pending documents, approaching deadlines, and cost anomalies
+- **Cost calculation** — total landed cost (product + freight + taxes + storage) per shipment
+
+---
+
+## Architecture
 
 ```
 Frontend: React + TypeScript + Tailwind CSS
 Backend: Hono (API framework)
 Runtime: Cloudflare Workers (edge deployment)
-Banco: Cloudflare D1 (SQLite na edge)
+Database: Cloudflare D1 (SQLite at the edge)
 Deploy: Cloudflare (wrangler)
-CI: GitHub Actions (lint + testes + deploy)
+CI: GitHub Actions (lint + tests + deploy)
 ```
 
-### Decisoes de arquitetura
+### Architecture decisions
 
-- **Cloudflare Workers + D1 sobre Node.js + PostgreSQL:** operacao leve, poucos usuarios simultaneos (equipe de importacao), sem necessidade de banco relacional pesado. D1 na edge oferece latencia minima para equipe distribuida entre Brasil e China (fusos horarios diferentes, acesso de ambos os lados).
-- **Hono sobre Express:** framework feito para edge. Tipagem end-to-end, middleware composavel, compativel nativamente com Workers.
-- **Sem ORM pesado:** D1 usa SQL direto com tipagem manual. Para schema simples e queries previssiveis, ORM adiciona overhead sem beneficio proporcional.
-- **SPA sobre SSR:** dashboard interno, SEO irrelevante, usuarios sempre autenticados. SPA simplifica deploy e reduz dependencia de servidor.
-
----
-
-## Resultados
-
-- **89 testes** — unitarios e integracao
-- **Edge deployment global** — latencia < 50ms tanto do Brasil quanto da China
-- **Compliance scoring funcional** — score calculado automaticamente com base em 12 criterios documentados
-- **Custo de infraestrutura proximo de zero** — Workers free tier cobre o volume de uso da equipe
-- **Tempo de deploy: < 30 segundos** — push para main dispara deploy automatico via wrangler
+- **Cloudflare Workers + D1 over Node.js + PostgreSQL:** lightweight operation, few simultaneous users (import team), no need for a heavy relational database. D1 at the edge offers minimal latency for a team distributed between Brazil and China (different time zones, access from both sides).
+- **Hono over Express:** framework built for the edge. End-to-end typing, composable middleware, natively compatible with Workers.
+- **No heavy ORM:** D1 uses direct SQL with manual typing. For a simple schema and predictable queries, an ORM adds overhead without proportional benefit.
+- **SPA over SSR:** internal dashboard, SEO irrelevant, users always authenticated. SPA simplifies deploy and reduces server dependency.
 
 ---
 
-## Aprendizados
+## Results
 
-1. **Edge-first funciona para ferramentas internas.** Equipes pequenas com usuarios distribuidos se beneficiam de latencia global uniforme. Nao precisa ser um sistema grande para justificar edge.
+- **89 tests** — unit and integration
+- **Global edge deployment** — latency < 50ms from both Brazil and China
+- **Functional compliance scoring** — score calculated automatically based on 12 documented criteria
+- **Near-zero infrastructure cost** — Workers free tier covers the team's usage volume
+- **Deploy time: < 30 seconds** — push to main triggers automatic deploy via wrangler
 
-2. **Compliance scoring precisa de regras explicitas.** Cada criterio deve ser documentado, ponderado e auditavel. Score opaco nao gera confianca — a equipe precisa entender por que um embarque tem score baixo.
+---
 
-3. **D1 tem limitacoes.** Para queries complexas de agregacao e joins multiplos, SQLite na edge mostra limites. Para este caso de uso (CRUD + scoring + alertas), e suficiente. Para analytics pesado, migraria para PostgreSQL.
+## Lessons learned
 
-4. **Hono + Workers e a combinacao mais produtiva para APIs leves.** Deploy instantaneo, sem cold start, tipagem completa. Para microservicos e ferramentas internas, dificil justificar algo mais pesado.
+1. **Edge-first works for internal tools.** Small teams with distributed users benefit from uniform global latency. You don't need a large system to justify edge.
 
-5. **Operacoes de importacao tem sazonalidade.** O sistema precisa lidar com periodos de zero embarques e periodos de 20+ simultaneos sem degradar. Escala automatica do Workers resolve isso sem configuracao.
+2. **Compliance scoring needs explicit rules.** Each criterion must be documented, weighted, and auditable. An opaque score doesn't generate trust — the team needs to understand why a shipment has a low score.
+
+3. **D1 has limitations.** For complex aggregation queries and multiple joins, SQLite at the edge shows its limits. For this use case (CRUD + scoring + alerts), it's sufficient. For heavy analytics, I'd migrate to PostgreSQL.
+
+4. **Hono + Workers is the most productive combination for lightweight APIs.** Instant deploy, no cold start, complete typing. For microservices and internal tools, hard to justify anything heavier.
+
+5. **Import operations are seasonal.** The system needs to handle periods of zero shipments and periods of 20+ simultaneous ones without degradation. Workers' automatic scaling solves this without configuration.

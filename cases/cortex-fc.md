@@ -1,73 +1,73 @@
-# Caso: Cortex FC
+# Case: Sports Analytics with AI (Cortex FC)
 
-Sistema de analytics esportivo com IA para futebol.
-
----
-
-## Problema
-
-Analytics de futebol esta fragmentado entre planilhas, videos, relatorios manuais e ferramentas desconectadas. Scouts fazem analises que nao chegam ao diretor tecnico. Analistas de desempenho usam metricas diferentes das do departamento medico. Relatorios de adversarios sao feitos em formatos incompativeis. O resultado: decisoes taticas e de contratacao baseadas em informacao incompleta ou desatualizada.
+AI-powered sports analytics system for football.
 
 ---
 
-## Solucao
+## Problem
 
-Plataforma unificada de analytics com 7 agentes de IA especializados:
-
-- **Agente de Scouting** — analise de jogadores potenciais com base em metricas estatisticas, video highlights e compatibilidade tatica
-- **Agente de Analise Tatica** — decomposicao de formacoes, padroes de jogo e transicoes ofensivas/defensivas
-- **Agente de Performance** — monitoramento de carga de treino, fadiga acumulada e risco de lesao
-- **Agente de Adversarios** — relatorios automaticos sobre proximos oponentes com pontos fracos e padroes identificados
-- **Agente de Relatorios** — geracao automatica de relatorios consolidados para comissao tecnica e diretoria
-- **Agente de Dados** — integracao e normalizacao de dados de multiplas fontes (APIs de stats, GPS, video)
-- **Agente de Estrategia** — simulacao de cenarios taticos e recomendacoes baseadas em dados historicos
-
-Cada agente opera de forma independente mas compartilha a mesma base de dados. Resultados sao combinados em dashboards por papel (scout, analista, diretor, treinador).
+Football analytics is fragmented across spreadsheets, videos, manual reports, and disconnected tools. Scouts produce analyses that never reach the technical director. Performance analysts use different metrics than the medical department. Opposition reports are created in incompatible formats. The result: tactical and recruitment decisions based on incomplete or outdated information.
 
 ---
 
-## Arquitetura
+## Solution
+
+Unified analytics platform with 7 specialized AI agents:
+
+- **Scouting Agent** — analysis of potential players based on statistical metrics, video highlights, and tactical compatibility
+- **Tactical Analysis Agent** — decomposition of formations, game patterns, and offensive/defensive transitions
+- **Performance Agent** — monitoring of training load, accumulated fatigue, and injury risk
+- **Opposition Agent** — automatic reports on upcoming opponents with identified weaknesses and patterns
+- **Reporting Agent** — automatic generation of consolidated reports for coaching staff and board
+- **Data Agent** — integration and normalization of data from multiple sources (stats APIs, GPS, video)
+- **Strategy Agent** — simulation of tactical scenarios and recommendations based on historical data
+
+Each agent operates independently but shares the same database. Results are combined in dashboards by role (scout, analyst, director, coach).
+
+---
+
+## Architecture
 
 ```
 Frontend: Next.js 14 (App Router) + TypeScript + Tailwind CSS
 ORM: Drizzle ORM
-Banco: PostgreSQL (Neon)
-IA: Anthropic Claude SDK (orquestracao de agentes)
-Auth: NextAuth.js com RBAC multi-organizacao
-PWA: Service workers + cache offline
+Database: PostgreSQL (Neon)
+AI: Anthropic Claude SDK (agent orchestration)
+Auth: NextAuth.js with multi-organization RBAC
+PWA: Service workers + offline cache
 Deploy: Vercel
 CI: GitHub Actions
 ```
 
-### Decisoes de arquitetura
+### Architecture decisions
 
-- **Multi-tenancy por organizacao:** cada clube e uma organizacao isolada. Dados de scouting do Clube A nao sao visiveis para o Clube B. Isolamento total a nivel de query (org_id em toda tabela).
-- **RBAC granular:** scout ve scouting e relatorios. Analista ve performance e tatica. Diretor ve tudo. Treinador ve tatica e adversarios. Cada papel tem permissoes especificas por modulo.
-- **Offline-first PWA:** analistas trabalham em estadios, centros de treinamento e viagens — frequentemente sem internet estavel. O sistema funciona offline com sync quando reconecta.
-- **Anthropic SDK para agentes:** cada agente e uma chain com contexto especifico (system prompt + dados relevantes + formato de output). Nao e um modelo generico — cada agente sabe exatamente seu escopo.
-- **Separacao agente/dados:** agentes de IA nao acessam banco diretamente. Eles recebem dados pre-processados e retornam analises estruturadas. O service layer faz a mediacao.
-
----
-
-## Resultados
-
-- **208 testes** — unitarios, integracao e E2E para fluxos criticos
-- **RBAC multi-organizacao validado** — testes especificos para cada combinacao de papel/recurso/organizacao
-- **PWA funcional offline** — cache de dados recentes, formularios de input com sync posterior
-- **7 agentes operacionais** — cada um com prompt especializado, validacao de output e fallback
-- **Pipeline CI completa** — lint, typecheck, testes, build, deploy automatico
-- **Tempo de resposta dos agentes < 3 segundos** — otimizado com cache de contexto e prompts enxutos
+- **Multi-tenancy per organization:** each club is an isolated organization. Club A's scouting data is not visible to Club B. Total isolation at query level (org_id on every table).
+- **Granular RBAC:** scout sees scouting and reports. Analyst sees performance and tactics. Director sees everything. Coach sees tactics and opposition. Each role has specific permissions per module.
+- **Offline-first PWA:** analysts work in stadiums, training centers, and during travel — frequently without stable internet. The system works offline with sync on reconnection.
+- **Anthropic SDK for agents:** each agent is a chain with specific context (system prompt + relevant data + output format). It's not a generic model — each agent knows exactly its scope.
+- **Agent/data separation:** AI agents don't access the database directly. They receive pre-processed data and return structured analyses. The service layer mediates.
 
 ---
 
-## Aprendizados
+## Results
 
-1. **Multi-agente exige orquestracao rigida.** Sete agentes compartilhando dados criam possibilidades de inconsistencia. Cada agente deve ter input/output tipado e validado. Agente que retorna formato inesperado e bug — tratar como tal.
+- **208 tests** — unit, integration, and E2E for critical flows
+- **Multi-organization RBAC validated** — specific tests for each role/resource/organization combination
+- **Functional offline PWA** — cache of recent data, input forms with deferred sync
+- **7 operational agents** — each with specialized prompt, output validation, and fallback
+- **Complete CI pipeline** — lint, typecheck, tests, build, automatic deploy
+- **Agent response time < 3 seconds** — optimized with context caching and lean prompts
 
-2. **RBAC multi-tenant e a feature mais critica e menos visivel.** Se um scout de um clube ve dados de outro, o produto morre. Testes de permissao sao os mais importantes do sistema.
+---
 
-3. **Offline-first nao e feature — e requisito de infra.** Em contexto esportivo, a internet nao e confiavel. Se o sistema nao funciona offline, nao funciona no campo.
+## Lessons learned
 
-4. **Agentes de IA precisam de escopo restrito.** Agente que faz tudo nao faz nada bem. Cada agente com um papel claro, dados limitados e formato de output definido produz resultados consistentes.
+1. **Multi-agent requires strict orchestration.** Seven agents sharing data create possibilities for inconsistency. Each agent must have typed and validated input/output. An agent that returns an unexpected format is a bug — treat it as one.
 
-5. **Separar agente de acesso a dados previne alucinacao.** O agente recebe dados reais e analisa — nao busca dados por conta propria. Isso elimina a possibilidade de inventar estatisticas que nao existem.
+2. **Multi-tenant RBAC is the most critical and least visible feature.** If a scout from one club sees another club's data, the product is dead. Permission tests are the most important tests in the system.
+
+3. **Offline-first isn't a feature — it's an infrastructure requirement.** In sports contexts, internet is unreliable. If the system doesn't work offline, it doesn't work in the field.
+
+4. **AI agents need restricted scope.** An agent that does everything does nothing well. Each agent with a clear role, limited data, and defined output format produces consistent results.
+
+5. **Separating agents from data access prevents hallucination.** The agent receives real data and analyzes it — it doesn't fetch data on its own. This eliminates the possibility of inventing statistics that don't exist.

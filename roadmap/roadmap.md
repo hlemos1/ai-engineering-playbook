@@ -1,86 +1,86 @@
-# Roadmap de Maturidade
+# Maturity Roadmap
 
-Quatro niveis de maturidade na construcao de sistemas com IA. Cada nivel adiciona capacidades sobre o anterior. Nao pule niveis — a base sustenta tudo que vem depois.
-
----
-
-## Nivel 1: Fundacao
-
-**CRUD + deploy simples**
-
-Capacidades:
-- Criar endpoints REST basicos (create, read, update, delete)
-- Modelar entidades e relacoes no banco de dados
-- Fazer deploy automatico para producao (Vercel, Cloudflare)
-- Usar IA para gerar codigo com prompts especificos
-- Commit atomico com mensagens descritivas
-
-Criterio de conclusao: voce consegue sair de problema definido ate sistema funcionando em producao em menos de uma semana, com IA gerando o codigo sob sua direcao.
+Four maturity levels for building systems with AI. Each level adds capabilities on top of the previous one. Don't skip levels — the foundation supports everything that comes after.
 
 ---
 
-## Nivel 2: Disciplina
+## Level 1: Foundation
 
-**Autenticacao + testes + qualidade**
+**CRUD + simple deploy**
 
-Capacidades:
-- Autenticacao e autorizacao (JWT, NextAuth, sessoes)
-- RBAC basico (admin, usuario, operador)
-- Testes unitarios e de integracao com cobertura > 70%
-- CI/CD completo (lint + typecheck + testes + build + deploy)
-- Validacao de input com schemas tipados (Zod)
-- Tratamento de erro estruturado (nao try/catch generico)
+Capabilities:
+- Create basic REST endpoints (create, read, update, delete)
+- Model entities and relationships in the database
+- Automatic deploy to production (Vercel, Cloudflare)
+- Use AI to generate code with specific prompts
+- Atomic commits with descriptive messages
 
-Criterio de conclusao: todo sistema que voce constroi tem auth funcional, testes automatizados e pipeline de CI que bloqueia merge se algo falha. Nao existe feature sem teste.
+Completion criteria: you can go from defined problem to working system in production in less than a week, with AI generating the code under your direction.
 
 ---
 
-## Nivel 3: Robustez
+## Level 2: Discipline
 
-**Multi-tenancy + observabilidade + seguranca**
+**Authentication + tests + quality**
 
-Capacidades:
-- Multi-tenancy real (isolamento de dados por organizacao a nivel de query)
-- Sentry ou equivalente para error tracking em producao
-- Security headers configurados (CSP, HSTS, X-Frame-Options)
-- Rate limiting em endpoints publicos
-- Monitoramento de performance (Lighthouse CI, Web Vitals)
-- Migrations reversiveis e versionadas
-- Secrets em variaveis de ambiente, nunca no codigo
-- Logs estruturados sem dados sensiveis
+Capabilities:
+- Authentication and authorization (JWT, NextAuth, sessions)
+- Basic RBAC (admin, user, operator)
+- Unit and integration tests with coverage > 70%
+- Complete CI/CD (lint + typecheck + tests + build + deploy)
+- Input validation with typed schemas (Zod)
+- Structured error handling (not generic try/catch)
+
+Completion criteria: every system you build has functional auth, automated tests, and a CI pipeline that blocks merge if anything fails. No feature exists without a test.
+
+---
+
+## Level 3: Robustness
+
+**Multi-tenancy + observability + security**
+
+Capabilities:
+- Real multi-tenancy (data isolation per organization at query level)
+- Sentry or equivalent for production error tracking
+- Security headers configured (CSP, HSTS, X-Frame-Options)
+- Rate limiting on public endpoints
+- Performance monitoring (Lighthouse CI, Web Vitals)
+- Reversible and versioned migrations
+- Secrets in environment variables, never in code
+- Structured logs without sensitive data
 - Health check endpoints
 
-Criterio de conclusao: seu sistema e multi-tenant, monitorado, seguro e auditavel. Voce sabe quando algo quebra antes do usuario reportar. Dados de um cliente nunca vazam para outro.
+Completion criteria: your system is multi-tenant, monitored, secure, and auditable. You know when something breaks before the user reports it. One client's data never leaks to another.
 
 ---
 
-## Nivel 4: Ecossistema
+## Level 4: Ecosystem
 
-**Automacao com IA + integracao de sistemas + pensamento de rede**
+**AI automation + system integration + network thinking**
 
-Capacidades:
-- Agentes de IA com escopo definido operando dentro do sistema
-- Integracao entre multiplos sistemas (CRM + analytics + supply chain + financeiro)
-- Orquestracao de workflows automatizados (N8N, jobs em background)
-- RAG com embeddings para contexto proprietario
-- Multi-sistema com identidade unificada (SSO ou token compartilhado)
-- Metricas de negocio derivadas de dados de multiplos sistemas
-- Capacidade de adicionar novos modulos sem reescrever os existentes
-- Pensamento de ecossistema: cada sistema novo fortalece os existentes
+Capabilities:
+- AI agents with defined scope operating within the system
+- Integration across multiple systems (CRM + analytics + supply chain + finance)
+- Automated workflow orchestration (N8N, background jobs)
+- RAG with embeddings for proprietary context
+- Multi-system unified identity (SSO or shared token)
+- Business metrics derived from multi-system data
+- Ability to add new modules without rewriting existing ones
+- Ecosystem thinking: each new system strengthens the existing ones
 
-Criterio de conclusao: voce nao constroi projetos isolados — constroi sistemas conectados que se alimentam mutuamente. Dados fluem entre sistemas. Agentes de IA operam sobre dados reais com escopo restrito. O ecossistema gera valor maior que a soma das partes.
+Completion criteria: you don't build isolated projects — you build connected systems that feed each other. Data flows between systems. AI agents operate on real data with restricted scope. The ecosystem generates more value than the sum of its parts.
 
 ---
 
-## Meta final
+## End goal
 
-Nao e construir um sistema. E construir a capacidade de construir sistemas — rapido, com qualidade, monitorados e conectados.
+It's not about building a system. It's about building the capability to build systems — fast, with quality, monitored, and connected.
 
-Cada projeto novo e mais rapido que o anterior porque:
-- A stack esta definida
-- Os padroes estao documentados
-- O workflow esta internalizado
-- A IA esta calibrada com contexto persistente (CLAUDE.md)
-- Os erros do passado estao registrados e nao se repetem
+Each new project is faster than the last because:
+- The stack is defined
+- The patterns are documented
+- The workflow is internalized
+- The AI is calibrated with persistent context (CLAUDE.md)
+- Past mistakes are recorded and don't repeat
 
-O objetivo nao e velocidade. E consistencia. Velocidade e consequencia de processo maduro.
+The goal isn't speed. It's consistency. Speed is a consequence of a mature process.

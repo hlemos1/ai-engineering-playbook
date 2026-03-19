@@ -1,173 +1,173 @@
-# Workflow de Construcao
+# Build Workflow
 
-Processo em 7 etapas para sair de problema de negocio ate sistema em producao.
+7-step process to go from business problem to production system.
 
 ---
 
-## O loop fundamental
+## The fundamental loop
 
 ```
-IA gera -> humano valida -> IA ajusta -> producao
+AI generates -> human validates -> AI adjusts -> production
 ```
 
-Esse loop se repete em cada etapa. A IA nunca opera sozinha. O humano nunca implementa manualmente o que a IA pode gerar mais rapido. Os dois juntos produzem mais que qualquer um isolado — mas so se o humano estiver no controle.
+This loop repeats at every stage. AI never operates alone. The human never manually implements what AI can generate faster. Together they produce more than either in isolation — but only if the human is in control.
 
 ---
 
-## Etapa 1: Definir o problema
+## Step 1: Define the problem
 
-Antes de qualquer codigo, definir em uma frase o problema real de negocio.
+Before any code, define the real business problem in one sentence.
 
-**Exemplo real (Restaurant CRM):**
-"Restaurantes de delivery nao tem visibilidade clara sobre pedidos, margens e comportamento de clientes. Decisoes sao tomadas no achismo."
+**Real example (Restaurant CRM):**
+"Delivery restaurants have no clear visibility into orders, margins, and customer behavior. Decisions are made by guesswork."
 
-**Exemplo real (Missao China HQ):**
-"Operacoes de importacao China-Brasil sao gerenciadas em planilhas fragmentadas. Nao existe score de compliance nem rastreamento unificado de embarques."
+**Real example (Supply Chain China-Brazil):**
+"China-Brazil import operations are managed in fragmented spreadsheets. There's no compliance score or unified shipment tracking."
 
-**Exemplo real (Cortex FC):**
-"Analytics de futebol esta espalhado em ferramentas desconectadas. Scouts, analistas e diretoria nao compartilham a mesma base de dados."
+**Real example (Sports Analytics):**
+"Football analytics is scattered across disconnected tools. Scouts, analysts, and board members don't share the same data foundation."
 
-A definicao do problema guia todas as decisoes seguintes. Se o problema muda, a arquitetura muda. Se o problema nao esta claro, pare e clarifique antes de prosseguir.
-
----
-
-## Etapa 2: Arquitetura
-
-Desenhar entidades, relacoes e fluxos antes de gerar qualquer codigo.
-
-- Quais sao as entidades principais? (ex: Pedido, Cliente, Produto, Organizacao)
-- Como se relacionam? (ex: Pedido pertence a Cliente, Organizacao tem muitos Usuarios)
-- Quais sao os fluxos criticos? (ex: criar pedido -> notificar cozinha -> atualizar status -> feedback)
-- Onde ficam os dados? (ex: PostgreSQL para dados relacionais, S3 para arquivos)
-- Quem acessa o que? (ex: RBAC por organizacao, admin vs operador)
-
-Resultado: diagrama de entidades, lista de endpoints, definicao de permissoes.
+The problem definition guides every decision that follows. If the problem changes, the architecture changes. If the problem isn't clear, stop and clarify before proceeding.
 
 ---
 
-## Etapa 3: Selecao de stack
+## Step 2: Architecture
 
-Escolher tecnologias com base no problema, nao em preferencia pessoal.
+Design entities, relationships, and flows before generating any code.
 
-Perguntas guia:
-- Precisa de SSR? -> Next.js
-- API leve na edge? -> Hono + Workers
-- Dados relacionais com tipagem? -> PostgreSQL + Drizzle
-- Auth multi-tenant? -> NextAuth ou custom JWT
-- Monitoramento? -> Sentry
+- What are the main entities? (e.g., Order, Customer, Product, Organization)
+- How do they relate? (e.g., Order belongs to Customer, Organization has many Users)
+- What are the critical flows? (e.g., create order -> notify kitchen -> update status -> feedback)
+- Where does data live? (e.g., PostgreSQL for relational data, S3 for files)
+- Who accesses what? (e.g., RBAC per organization, admin vs operator)
 
-Uma vez escolhida a stack, documentar no repositorio (README ou STACK.md) e nao mudar sem motivo documentado.
+Output: entity diagram, endpoint list, permission definitions.
 
 ---
 
-## Etapa 4: Orquestracao de IA
+## Step 3: Stack selection
 
-Como a IA participa do desenvolvimento:
+Choose technologies based on the problem, not personal preference.
 
-### CLAUDE.md como contexto persistente
+Guiding questions:
+- Need SSR? -> Next.js
+- Lightweight edge API? -> Hono + Workers
+- Relational data with typing? -> PostgreSQL + Drizzle
+- Multi-tenant auth? -> NextAuth or custom JWT
+- Monitoring? -> Sentry
 
-Cada repositorio tem um arquivo CLAUDE.md na raiz que define:
-- Stack do projeto
-- Convencoes de codigo
-- Regras de arquitetura
-- Workflow obrigatorio (planejar -> aprovar -> executar -> testar)
-- Checklist de seguranca e qualidade
+Once the stack is chosen, document it in the repository (README or STACK.md) and don't change without a documented reason.
 
-A IA le esse arquivo a cada sessao. Isso elimina repeticao de contexto e garante consistencia entre sessoes.
+---
 
-### Estrutura de prompts
+## Step 4: AI orchestration
 
-Nao pedir "crie um sistema de pedidos". Pedir:
+How AI participates in development:
+
+### CLAUDE.md as persistent context
+
+Each repository has a CLAUDE.md file at the root that defines:
+- Project stack
+- Code conventions
+- Architecture rules
+- Mandatory workflow (plan -> approve -> execute -> test)
+- Security and quality checklist
+
+The AI reads this file at every session. This eliminates context repetition and ensures consistency across sessions.
+
+### Prompt structure
+
+Don't ask "create an order system." Ask:
 
 ```
-Dado o schema de banco definido em src/db/schema.ts,
-implemente o service de pedidos em src/services/orders.ts com:
+Given the database schema defined in src/db/schema.ts,
+implement the orders service in src/services/orders.ts with:
 - createOrder(data: NewOrder): Promise<Order>
 - getOrdersByOrganization(orgId: string, pagination: PaginationParams): Promise<PaginatedResult<Order>>
 - updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order>
 
-Siga as convencoes do CLAUDE.md.
-Inclua validacao de input com Zod.
-Nao ultrapasse 200 linhas neste arquivo.
+Follow CLAUDE.md conventions.
+Include input validation with Zod.
+Don't exceed 200 lines in this file.
 ```
 
-Contexto especifico, output previsivel, restricoes claras.
+Specific context, predictable output, clear constraints.
 
-### Ciclo de iteracao
+### Iteration cycle
 
-1. IA gera codigo
-2. Humano revisa (nao aceita cegamente)
-3. Humano aponta ajustes especificos
-4. IA ajusta
-5. Testes sao escritos (pela IA, validados pelo humano)
-6. Commit atomico com mensagem descritiva
+1. AI generates code
+2. Human reviews (never accepts blindly)
+3. Human points out specific adjustments
+4. AI adjusts
+5. Tests are written (by AI, validated by human)
+6. Atomic commit with descriptive message
 
 ---
 
-## Etapa 5: Iteracao e validacao
+## Step 5: Iteration and validation
 
-Cada funcionalidade segue o ciclo:
+Each feature follows the cycle:
 
-1. Implementar a feature minima
-2. Testar manualmente
-3. Escrever testes automatizados
-4. Refatorar se necessario
-5. Revisar seguranca (inputs validados? secrets protegidos? queries otimizadas?)
+1. Implement the minimum feature
+2. Test manually
+3. Write automated tests
+4. Refactor if needed
+5. Security review (inputs validated? secrets protected? queries optimized?)
 6. Commit
 
-Nunca acumular multiplas features sem commit. Small releases, sempre.
+Never accumulate multiple features without committing. Small releases, always.
 
 ---
 
-## Etapa 6: Testes
+## Step 6: Testing
 
-Tres niveis obrigatorios:
+Three mandatory levels:
 
-### Unitarios
-Validam logica isolada. Services, utils, helpers. Rapidos, sem dependencia externa.
+### Unit
+Validate isolated logic. Services, utils, helpers. Fast, no external dependencies.
 
-### Integracao
-Validam fluxo completo. API endpoint recebe request, processa, salva no banco, retorna response. Usam banco de teste real (nao mock).
+### Integration
+Validate complete flow. API endpoint receives request, processes, saves to database, returns response. Use real test database (not mocks).
 
-### E2E (quando aplicavel)
-Validam experiencia do usuario. Playwright para fluxos criticos: login, criar pedido, gerar relatorio.
+### E2E (when applicable)
+Validate user experience. Playwright for critical flows: login, create order, generate report.
 
-**Exemplos reais de cobertura:**
-- Restaurant CRM: 352 testes
-- Missao China HQ: 89 testes
-- Cortex FC: 208 testes
+**Real coverage examples:**
+- Restaurant CRM: 352 tests
+- Supply Chain China-Brazil: 89 tests
+- Sports Analytics (Cortex FC): 208 tests
 
-Meta minima: 70% de cobertura. Pipeline de CI falha se cobertura cair.
+Minimum target: 70% coverage. CI pipeline fails if coverage drops.
 
 ---
 
-## Etapa 7: Deploy e monitoramento
+## Step 7: Deploy and monitoring
 
-### CI/CD com GitHub Actions
+### CI/CD with GitHub Actions
 
-Pipeline padrao:
+Standard pipeline:
 1. Lint (ESLint + Prettier)
 2. Type check (tsc --noEmit)
-3. Testes (vitest ou jest)
+3. Tests (vitest or jest)
 4. Build
 5. Deploy (Vercel / Cloudflare)
 
-### Monitoramento
+### Monitoring
 
-- Sentry para error tracking
-- Lighthouse CI para performance (meta: score > 90)
-- Health check endpoint em toda API
-- Alertas configurados para erros criticos
+- Sentry for error tracking
+- Lighthouse CI for performance (target: score > 90)
+- Health check endpoint on every API
+- Alerts configured for critical errors
 
-### Pos-deploy
+### Post-deploy
 
-- Verificar Sentry: novos erros?
-- Verificar metricas: latencia, error rate
-- Smoke test manual nos fluxos criticos
-- Se algo quebrou: rollback, investigar, corrigir, re-deploy
+- Check Sentry: new errors?
+- Check metrics: latency, error rate
+- Manual smoke test on critical flows
+- If something broke: rollback, investigate, fix, re-deploy
 
 ---
 
-## Resumo
+## Summary
 
-O workflow nao e linear — e ciclico. Cada feature passa por todas as etapas. O sistema cresce de forma incremental, validada e monitorada. A IA acelera cada etapa, mas o humano garante que o resultado faz sentido para o negocio.
+The workflow isn't linear — it's cyclical. Each feature goes through every step. The system grows incrementally, validated and monitored. AI accelerates each step, but the human ensures the result makes sense for the business.
